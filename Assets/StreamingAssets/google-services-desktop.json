@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "392326811580",
+    "firebase_url": "https://ddaxitd-bdf8f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ddaxitd-bdf8f",
+    "storage_bucket": "ddaxitd-bdf8f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392326811580:android:5e477eb540e7e64d78a5b9",
+        "android_client_info": {
+          "package_name": "com.np.cactus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKGprHLf8JdBHK5fbqs9r0_W8LGL7vXMk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

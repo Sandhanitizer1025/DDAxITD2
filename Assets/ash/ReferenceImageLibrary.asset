@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 848409ee8ba454f42a5ddff137688a27, type: 3}
+  m_Name: ReferenceImageLibrary
+  m_EditorClassIdentifier: 
+  m_GuidLow: 5254640376466191547
+  m_GuidHigh: 17809483417102516616
+  m_DataStore:
+    m_Storage: []
+  m_Images:
+  - m_SerializedGuid:
+      m_GuidLow: 5125256571501282563
+      m_GuidHigh: 16779327823320805017
+    m_SerializedTextureGuid:
+      m_GuidLow: 10539635312034063605
+      m_GuidHigh: 16825978699921962168
+    m_Size: {x: 0.1, y: 0.13333334}
+    m_SpecifySize: 1
+    m_Name: seed
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 4919807802104487444
+      m_GuidHigh: 11037192878332501893
+    m_SerializedTextureGuid:
+      m_GuidLow: 10661304190974169739
+      m_GuidHigh: 7388125601786722313
+    m_Size: {x: 0.1, y: 0.1}
+    m_SpecifySize: 1
+    m_Name: cactus
+    m_Texture: {fileID: 0}
