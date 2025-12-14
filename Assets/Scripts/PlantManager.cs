@@ -32,6 +32,27 @@ public class PlantManager : MonoBehaviour
         Transform canvas = plant.transform.Find("Canvas");
         if (canvas == null) return;
 
+        // =========================
+        // Firebase: LOAD saved state
+        // =========================
+        if (FirebasePlantService.Instance != null)
+        {
+            string plantId = GetPlantId(plant);
+            FirebasePlantService.Instance.LoadPlants((dict) =>
+            {
+                if (dict != null && dict.TryGetValue(plantId, out PlantState state))
+                {
+                    var growth = plant.GetComponent<PlantGrowth>();
+                    if (growth != null)
+                    {
+                        growth.growth = state.growth;
+                        growth.matureLevel = state.matureLevel;
+                        Debug.Log($"[PlantManager] Loaded {plantId} growth={growth.growth}");
+                    }
+                }
+            });
+        }
+
         // auto-bind Water button
         Button water = canvas.Find("Water")?.GetComponent<Button>();
         if (water)
@@ -81,6 +102,11 @@ public class PlantManager : MonoBehaviour
 
         growth.Grow();
         Debug.Log($"Watered {plant.name} → growth {growth.growth}");
+
+        // =========================
+        // Firebase: SAVE state
+        // =========================
+        SaveCurrentPlant(plant, growth);
     }
 
     private void FertilizePlant(GameObject plant)
@@ -91,6 +117,11 @@ public class PlantManager : MonoBehaviour
         growth.Grow();
         growth.Grow();
         Debug.Log($"Fertilized {plant.name} → growth {growth.growth}");
+
+        // =========================
+        // Firebase: SAVE state
+        // =========================
+        SaveCurrentPlant(plant, growth);
     }
 
     private void ShowInfo(GameObject plant)
@@ -124,8 +155,31 @@ public class PlantManager : MonoBehaviour
         if (infoPanel)
             infoPanel.SetActive(false);
     }
+
+    // =========================
+    // Firebase helper methods
+    // =========================
+    private string GetPlantId(GameObject plant)
+    {
+        // Uses prefab name (ImageTracker sets obj.name = prefab.name)
+        return plant.name;
+    }
+
+    private void SaveCurrentPlant(GameObject plant, PlantGrowth growth)
+    {
+        if (FirebasePlantService.Instance == null) return;
+
+        string plantId = GetPlantId(plant);
+
+        PlantState state = new PlantState
+        {
+            plantId = plantId,
+            speciesId = plantId,                 // minimal mapping; same as plantId
+            growth = growth.growth,
+            matureLevel = growth.matureLevel,
+            isMatured = growth.IsMature()
+        };
+
+        FirebasePlantService.Instance.SavePlant(plantId, state);
+    }
 }
-
-
-
-
