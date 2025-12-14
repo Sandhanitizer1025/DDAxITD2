@@ -4,53 +4,25 @@ using UnityEngine.UI;
 
 public class StartMenuController : MonoBehaviour
 {
-    [Header("Buttons")]
-    public Button enterMuseumButton;
-    public Button growPlantsButton;
-    public Button viewCollectionButton;
-    public Button logoutButton;
+    [Header("Button")]
+    public Button enterGardenButton;
 
-    [Header("Scene Names")]
-    public string museumSceneName = "MainGarden";    // museum scene
-    public string growSceneName = "ARGrowScene";     // placeholder
-    public string collectionSceneName = "Collection"; // placeholder
-    public string loginSceneName = "Login";          // your login scene
-
+    [Header("Scene Name")]
+    public string gardenSceneName = "MainGarden";   
     private void Awake()
     {
-        if (enterMuseumButton != null)
-            enterMuseumButton.onClick.AddListener(OnEnterMuseum);
-
-        if (growPlantsButton != null)
-            growPlantsButton.onClick.AddListener(OnGrowPlants);
-
-        if (viewCollectionButton != null)
-            viewCollectionButton.onClick.AddListener(OnViewCollection);
-
-        if (logoutButton != null)
-            logoutButton.onClick.AddListener(OnLogout);
+        if (enterGardenButton != null)
+        {
+            enterGardenButton.onClick.AddListener(OnEnterGarden);
+        }
+        else
+        {
+            Debug.LogWarning("Enter Garden button not assigned!");
+        }
     }
 
-    private void OnEnterMuseum()
+    private void OnEnterGarden()
     {
-        SceneManager.LoadScene(museumSceneName);
-    }
-
-    private void OnGrowPlants()
-    {
-        Debug.Log("Grow Plants scene not implemented yet.");
-        // Later: SceneManager.LoadScene(growSceneName);
-    }
-
-    private void OnViewCollection()
-    {
-        Debug.Log("Collection scene not implemented yet.");
-        // Later: SceneManager.LoadScene(collectionSceneName);
-    }
-
-    private void OnLogout()
-    {
-        // Optional: you can also sign out from Firebase here if you want
-        SceneManager.LoadScene(loginSceneName);
+        SceneManager.LoadScene(gardenSceneName);
     }
 }

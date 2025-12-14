@@ -12,18 +12,17 @@ public class FirebaseManager : MonoBehaviour
     public TMP_InputField emailInput;
     public TMP_InputField passwordInput;
     public TMP_Text statusText;
-    public UnityEngine.UI.Button loginButton;
-    public UnityEngine.UI.Button registerButton;
+    public Button loginButton;
+    public Button registerButton;
 
     [Header("Scene")]
-    public string sceneToLoad = "StartMenu"; 
+    public string sceneToLoad = "StartMenu";
 
     private FirebaseAuth auth;
     private bool isFirebaseReady = false;
 
     async void Start()
     {
-        // Connect buttons to functions in code
         if (loginButton != null)
         {
             loginButton.onClick.AddListener(LoginUser);
@@ -33,7 +32,7 @@ public class FirebaseManager : MonoBehaviour
         {
             Debug.LogWarning("Login button not assigned in Inspector!");
         }
-        
+
         if (registerButton != null)
         {
             registerButton.onClick.AddListener(RegisterUser);
@@ -52,29 +51,29 @@ public class FirebaseManager : MonoBehaviour
         {
             Debug.LogWarning("Status text not assigned in Inspector!");
         }
-        
+
         await InitializeFirebase();
     }
 
     private async Task InitializeFirebase()
     {
         Debug.Log("Starting Firebase initialization...");
-        
+
         var result = await FirebaseApp.CheckAndFixDependenciesAsync();
-        
+
         Debug.Log($"Firebase dependency check result: {result}");
-        
+
         if (result == DependencyStatus.Available)
         {
             auth = FirebaseAuth.DefaultInstance;
             isFirebaseReady = true;
-            Debug.Log("✓ Firebase Auth Ready!");
+            Debug.Log("Firebase Auth Ready!");
             if (statusText != null)
                 statusText.text = "Firebase Ready - Enter credentials";
         }
         else
         {
-            Debug.LogError($"✗ Firebase not ready: {result}");
+            Debug.LogError($"Firebase not ready: {result}");
             if (statusText != null)
                 statusText.text = $"Firebase Error: {result}";
         }
@@ -103,23 +102,22 @@ public class FirebaseManager : MonoBehaviour
             AuthResult authResult = await auth.CreateUserWithEmailAndPasswordAsync(email, password);
             FirebaseUser user = authResult.User;
 
-            Debug.Log($"✓ Registered! UID = {user.UserId}");
+            Debug.Log($"Registered! UID = {user.UserId}");
             if (statusText != null)
                 statusText.text = $"Registered as: {user.Email}";
 
-            // Load the next scene after successful registration
             Debug.Log($"Loading scene: {sceneToLoad}");
             SceneManager.LoadScene(sceneToLoad);
         }
         catch (FirebaseException fe)
         {
-            Debug.LogError($"✗ Firebase Register Error: {fe.ErrorCode} - {fe.Message}");
+            Debug.LogError($"Firebase Register Error: {fe.ErrorCode} - {fe.Message}");
             if (statusText != null)
                 statusText.text = $"Error: {fe.Message}";
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"✗ Register Error: {e.Message}");
+            Debug.LogError($"Register Error: {e.Message}");
             if (statusText != null)
                 statusText.text = $"Error: {e.Message}";
         }
@@ -148,19 +146,23 @@ public class FirebaseManager : MonoBehaviour
             AuthResult authResult = await auth.SignInWithEmailAndPasswordAsync(email, password);
             FirebaseUser user = authResult.User;
 
-            Debug.Log($"✓ Logged in! UID = {user.UserId}");
+            Debug.Log($"Logged in! UID = {user.UserId}");
             if (statusText != null)
                 statusText.text = $"Logged in as: {user.Email}";
+
+            // ✅ NEW: go to StartMenu after login too
+            Debug.Log($"Loading scene: {sceneToLoad}");
+            SceneManager.LoadScene(sceneToLoad);
         }
         catch (FirebaseException fe)
         {
-            Debug.LogError($"✗ Firebase Login Error: {fe.ErrorCode} - {fe.Message}");
+            Debug.LogError($"Firebase Login Error: {fe.ErrorCode} - {fe.Message}");
             if (statusText != null)
                 statusText.text = $"Error: {fe.Message}";
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"✗ Login Error: {e.Message}");
+            Debug.LogError($"Login Error: {e.Message}");
             if (statusText != null)
                 statusText.text = $"Error: {e.Message}";
         }

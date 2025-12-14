@@ -1,10 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class PlantManager : MonoBehaviour
 {
     public ImageTracker imageTracker;
-    public GameObject infoPanel; // optional global override panel
+    public GameObject infoPanel;
+
+    [Header("End Experience UI (Same Scene)")]
+    public GameObject endPanel;             
+    public string startSceneName = "StartMenu";
+    public int totalPlantsToComplete = 3;
+
+    private HashSet<string> maturedPlantIds = new HashSet<string>();
+
+    private HashSet<PlantGrowth> subscribedPlants = new HashSet<PlantGrowth>();
 
     void Awake()
     {
@@ -13,6 +24,9 @@ public class PlantManager : MonoBehaviour
             imageTracker.OnPlantActivated += SetupPlantUI;
             imageTracker.OnPlantDeactivated += HideUI;
         }
+
+        if (endPanel != null)
+            endPanel.SetActive(false);
     }
 
     void OnDestroy()
@@ -33,29 +47,47 @@ public class PlantManager : MonoBehaviour
         if (c == null) return;
         Transform canvas = c.transform;
 
+        var pg = plant.GetComponent<PlantGrowth>();
 
-        // =========================
+        if (pg != null && !subscribedPlants.Contains(pg))
+        {
+            subscribedPlants.Add(pg);
+            string plantId = GetPlantId(plant);
+
+            // Capture plantId in the event so we know WHICH plant matured
+            pg.OnMatured += () => MarkPlantMatured(plantId);
+        }
+
         // Firebase: LOAD saved state
-        // =========================
         if (FirebasePlantService.Instance != null)
         {
             string plantId = GetPlantId(plant);
+
             FirebasePlantService.Instance.LoadPlants((dict) =>
             {
                 if (dict != null && dict.TryGetValue(plantId, out PlantState state))
                 {
-                    var growth = plant.GetComponent<PlantGrowth>();
-                    if (growth != null)
+                    if (pg != null)
                     {
-                        growth.growth = state.growth;
-                        growth.matureLevel = state.matureLevel;
-                        Debug.Log($"[PlantManager] Loaded {plantId} growth={growth.growth}");
+                        pg.isPlanted = state.isPlanted;
+                        pg.isMature = state.isMature;
+
+                        pg.waterCount = state.waterCount;
+                        pg.fertilizeCount = state.fertilizeCount;
+
+                        pg.requiredWater = state.requiredWater;
+                        pg.requiredFertilize = state.requiredFertilize;
+
+                        Debug.Log($"[PlantManager] Loaded {plantId} planted={pg.isPlanted} mature={pg.isMature} water={pg.waterCount}/{pg.requiredWater} fert={pg.fertilizeCount}/{pg.requiredFertilize}");
+
+                        if (pg.isMature)
+                            MarkPlantMatured(plantId);
                     }
                 }
             });
         }
 
-        // auto-bind Water button
+        // Water button
         Button water = canvas.Find("Water")?.GetComponent<Button>();
         if (water)
         {
@@ -63,12 +95,19 @@ public class PlantManager : MonoBehaviour
             water.onClick.AddListener(() => WaterPlant(plant));
         }
 
-        // auto-bind Fertilize button
+        // Fertilize button
         Button fertilize = canvas.Find("Fertilize")?.GetComponent<Button>();
         if (fertilize)
         {
             fertilize.onClick.RemoveAllListeners();
             fertilize.onClick.AddListener(() => FertilizePlant(plant));
+        }
+
+        Button info = canvas.Find("Info")?.GetComponent<Button>();
+        if (info)
+        {
+            info.onClick.RemoveAllListeners();
+            info.onClick.AddListener(() => ShowInfo(plant));
         }
     }
 
@@ -84,46 +123,32 @@ public class PlantManager : MonoBehaviour
             infoPanel.SetActive(false);
     }
 
-    // growth logic
     private void WaterPlant(GameObject plant)
     {
-        var growth = plant.GetComponent<PlantGrowth>();
-        if (!growth) return;
+        var pg = plant.GetComponent<PlantGrowth>();
+        if (!pg) return;
 
+        pg.Water();
+        Debug.Log($"Water pressed for {plant.name} → water {pg.waterCount}/{pg.requiredWater}");
 
-        growth.Grow();
-        Debug.Log($"Watered {plant.name} → growth {growth.growth}");
-
-        // =========================
-        // Firebase: SAVE state
-        // =========================
-        SaveCurrentPlant(plant, growth);
-
-        growth.Water();
-        Debug.Log($"Water pressed for {plant.name} → water {growth.waterCount}/{growth.requiredWater}");
-
+        SaveCurrentPlant(plant, pg);
     }
 
     private void FertilizePlant(GameObject plant)
     {
-        var growth = plant.GetComponent<PlantGrowth>();
-        if (!growth) return;
+        var pg = plant.GetComponent<PlantGrowth>();
+        if (!pg) return;
 
+        pg.Fertilize();
+        Debug.Log($"Fertilize pressed for {plant.name} → fert {pg.fertilizeCount}/{pg.requiredFertilize}");
 
-        growth.Grow();
-        growth.Grow();
-        Debug.Log($"Fertilized {plant.name} → growth {growth.growth}");
-
-        // =========================
-        // Firebase: SAVE state
-        // =========================
-        SaveCurrentPlant(plant, growth);
+        SaveCurrentPlant(plant, pg);
     }
 
     private void ShowInfo(GameObject plant)
     {
-        var growth = plant.GetComponent<PlantGrowth>();
-        if (growth == null || !growth.IsMature())
+        var pg = plant.GetComponent<PlantGrowth>();
+        if (pg == null || !pg.IsMature())
         {
             Debug.Log("Plant is not mature yet.");
             return;
@@ -150,22 +175,49 @@ public class PlantManager : MonoBehaviour
 
         if (infoPanel)
             infoPanel.SetActive(false);
-
-        growth.Fertilize();
-        Debug.Log($"Fertilize pressed for {plant.name} → fert {growth.fertilizeCount}/{growth.requiredFertilize}");
-
     }
 
-    // =========================
+    // End experience logic
+    private void MarkPlantMatured(string plantId)
+    {
+        if (string.IsNullOrEmpty(plantId)) return;
+
+        // Only count once per plant
+        if (!maturedPlantIds.Add(plantId))
+            return;
+
+        Debug.Log($"[PlantManager] Matured {maturedPlantIds.Count}/{totalPlantsToComplete} : {plantId}");
+
+        if (maturedPlantIds.Count >= totalPlantsToComplete)
+        {
+            ShowEndPanel();
+        }
+    }
+
+    private void ShowEndPanel()
+    {
+        if (endPanel != null)
+            endPanel.SetActive(true);
+    }
+
+    public void ContinueExploring()
+    {
+        if (endPanel != null)
+            endPanel.SetActive(false);
+    }
+
+    public void ReturnToStartMenu()
+    {
+        SceneManager.LoadScene(startSceneName);
+    }
+
     // Firebase helper methods
-    // =========================
     private string GetPlantId(GameObject plant)
     {
-        // Uses prefab name (ImageTracker sets obj.name = prefab.name)
         return plant.name;
     }
 
-    private void SaveCurrentPlant(GameObject plant, PlantGrowth growth)
+    private void SaveCurrentPlant(GameObject plant, PlantGrowth pg)
     {
         if (FirebasePlantService.Instance == null) return;
 
@@ -174,10 +226,14 @@ public class PlantManager : MonoBehaviour
         PlantState state = new PlantState
         {
             plantId = plantId,
-            speciesId = plantId,                 // minimal mapping; same as plantId
-            growth = growth.growth,
-            matureLevel = growth.matureLevel,
-            isMatured = growth.IsMature()
+            speciesId = plantId,
+
+            isPlanted = pg.isPlanted,
+            isMature = pg.isMature,
+            waterCount = pg.waterCount,
+            fertilizeCount = pg.fertilizeCount,
+            requiredWater = pg.requiredWater,
+            requiredFertilize = pg.requiredFertilize
         };
 
         FirebasePlantService.Instance.SavePlant(plantId, state);
