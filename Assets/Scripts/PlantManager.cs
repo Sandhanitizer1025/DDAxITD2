@@ -29,8 +29,10 @@ public class PlantManager : MonoBehaviour
     {
         if (plant == null) return;
 
-        Transform canvas = plant.transform.Find("Canvas");
-        if (canvas == null) return;
+        Canvas c = plant.GetComponentInChildren<Canvas>(true);
+        if (c == null) return;
+        Transform canvas = c.transform;
+
 
         // =========================
         // Firebase: LOAD saved state
@@ -68,18 +70,6 @@ public class PlantManager : MonoBehaviour
             fertilize.onClick.RemoveAllListeners();
             fertilize.onClick.AddListener(() => FertilizePlant(plant));
         }
-
-        // auto-bind Info button
-        Button info = canvas.Find("Info")?.GetComponent<Button>();
-        if (info)
-        {
-            info.onClick.RemoveAllListeners();
-            info.onClick.AddListener(() => ShowInfo(plant));
-        }
-
-        // ensure info panel disabled at start
-        Transform p = canvas.Find("InfoPanel");
-        if (p) p.gameObject.SetActive(false);
     }
 
     private void HideUI(GameObject plant)
@@ -100,6 +90,7 @@ public class PlantManager : MonoBehaviour
         var growth = plant.GetComponent<PlantGrowth>();
         if (!growth) return;
 
+
         growth.Grow();
         Debug.Log($"Watered {plant.name} → growth {growth.growth}");
 
@@ -107,12 +98,17 @@ public class PlantManager : MonoBehaviour
         // Firebase: SAVE state
         // =========================
         SaveCurrentPlant(plant, growth);
+
+        growth.Water();
+        Debug.Log($"Water pressed for {plant.name} → water {growth.waterCount}/{growth.requiredWater}");
+
     }
 
     private void FertilizePlant(GameObject plant)
     {
         var growth = plant.GetComponent<PlantGrowth>();
         if (!growth) return;
+
 
         growth.Grow();
         growth.Grow();
@@ -154,6 +150,10 @@ public class PlantManager : MonoBehaviour
 
         if (infoPanel)
             infoPanel.SetActive(false);
+
+        growth.Fertilize();
+        Debug.Log($"Fertilize pressed for {plant.name} → fert {growth.fertilizeCount}/{growth.requiredFertilize}");
+
     }
 
     // =========================

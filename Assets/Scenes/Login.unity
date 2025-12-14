@@ -3848,6 +3848,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DefaultSimulationEnvironment 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7576867131100388943, guid: 7d535bb1da4cabe47a7b8e9dd74a4ba3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8738,7 +8742,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1747936794
 MonoBehaviour:
   m_ObjectHideFlags: 0
