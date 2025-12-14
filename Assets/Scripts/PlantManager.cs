@@ -29,8 +29,10 @@ public class PlantManager : MonoBehaviour
     {
         if (plant == null) return;
 
-        Transform canvas = plant.transform.Find("Canvas");
-        if (canvas == null) return;
+        Canvas c = plant.GetComponentInChildren<Canvas>(true);
+        if (c == null) return;
+        Transform canvas = c.transform;
+
 
         // auto-bind Water button
         Button water = canvas.Find("Water")?.GetComponent<Button>();
@@ -47,18 +49,6 @@ public class PlantManager : MonoBehaviour
             fertilize.onClick.RemoveAllListeners();
             fertilize.onClick.AddListener(() => FertilizePlant(plant));
         }
-
-        // auto-bind Info button
-        Button info = canvas.Find("Info")?.GetComponent<Button>();
-        if (info)
-        {
-            info.onClick.RemoveAllListeners();
-            info.onClick.AddListener(() => ShowInfo(plant));
-        }
-
-        // ensure info panel disabled at start
-        Transform p = canvas.Find("InfoPanel");
-        if (p) p.gameObject.SetActive(false);
     }
 
     private void HideUI(GameObject plant)
@@ -79,8 +69,8 @@ public class PlantManager : MonoBehaviour
         var growth = plant.GetComponent<PlantGrowth>();
         if (!growth) return;
 
-        growth.Grow();
-        Debug.Log($"Watered {plant.name} → growth {growth.growth}");
+        growth.Water();
+        Debug.Log($"Water pressed for {plant.name} → water {growth.waterCount}/{growth.requiredWater}");
     }
 
     private void FertilizePlant(GameObject plant)
@@ -88,41 +78,8 @@ public class PlantManager : MonoBehaviour
         var growth = plant.GetComponent<PlantGrowth>();
         if (!growth) return;
 
-        growth.Grow();
-        growth.Grow();
-        Debug.Log($"Fertilized {plant.name} → growth {growth.growth}");
-    }
-
-    private void ShowInfo(GameObject plant)
-    {
-        var growth = plant.GetComponent<PlantGrowth>();
-        if (growth == null || !growth.IsMature())
-        {
-            Debug.Log("Plant is not mature yet.");
-            return;
-        }
-
-        Transform localPanel = plant.transform.Find("Canvas/InfoPanel");
-        if (localPanel)
-        {
-            localPanel.gameObject.SetActive(true);
-            return;
-        }
-
-        if (infoPanel)
-            infoPanel.SetActive(true);
-    }
-
-    public void HideInfo(GameObject plant)
-    {
-        if (plant == null) return;
-
-        Transform panel = plant.transform.Find("Canvas/InfoPanel");
-        if (panel)
-            panel.gameObject.SetActive(false);
-
-        if (infoPanel)
-            infoPanel.SetActive(false);
+        growth.Fertilize();
+        Debug.Log($"Fertilize pressed for {plant.name} → fert {growth.fertilizeCount}/{growth.requiredFertilize}");
     }
 }
 
