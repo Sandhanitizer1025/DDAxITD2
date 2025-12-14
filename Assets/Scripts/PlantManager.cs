@@ -9,13 +9,16 @@ public class PlantManager : MonoBehaviour
     public GameObject infoPanel;
 
     [Header("End Experience UI (Same Scene)")]
-    public GameObject endPanel;             
+    public GameObject endPanel;
     public string startSceneName = "StartMenu";
     public int totalPlantsToComplete = 3;
 
     private HashSet<string> maturedPlantIds = new HashSet<string>();
-
     private HashSet<PlantGrowth> subscribedPlants = new HashSet<PlantGrowth>();
+
+    // Auto-wired end panel buttons (no Inspector OnClick needed)
+    private Button continueButton;
+    private Button returnButton;
 
     void Awake()
     {
@@ -54,7 +57,7 @@ public class PlantManager : MonoBehaviour
             subscribedPlants.Add(pg);
             string plantId = GetPlantId(plant);
 
-            // Capture plantId in the event so we know WHICH plant matured
+            // Track completion
             pg.OnMatured += () => MarkPlantMatured(plantId);
         }
 
@@ -103,6 +106,7 @@ public class PlantManager : MonoBehaviour
             fertilize.onClick.AddListener(() => FertilizePlant(plant));
         }
 
+        // Info button
         Button info = canvas.Find("Info")?.GetComponent<Button>();
         if (info)
         {
@@ -182,7 +186,6 @@ public class PlantManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(plantId)) return;
 
-        // Only count once per plant
         if (!maturedPlantIds.Add(plantId))
             return;
 
@@ -197,7 +200,55 @@ public class PlantManager : MonoBehaviour
     private void ShowEndPanel()
     {
         if (endPanel != null)
+        {
             endPanel.SetActive(true);
+
+            AutoWireEndPanelButtons();
+        }
+    }
+
+    private void AutoWireEndPanelButtons()
+    {
+        if (endPanel == null) return;
+
+        continueButton = null;
+        returnButton = null;
+
+        Button[] buttons = endPanel.GetComponentsInChildren<Button>(true);
+
+        foreach (Button b in buttons)
+        {
+            if (b.name == "ContinueButton") continueButton = b;
+            if (b.name == "ReturnButton") returnButton = b;
+        }
+
+        if (continueButton != null)
+        {
+            continueButton.onClick.RemoveAllListeners();
+            continueButton.onClick.AddListener(() =>
+            {
+                Debug.Log("[EndPanel] Continue clicked");
+                ContinueExploring();
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[PlantManager] ContinueButton not found under endPanel.");
+        }
+
+        if (returnButton != null)
+        {
+            returnButton.onClick.RemoveAllListeners();
+            returnButton.onClick.AddListener(() =>
+            {
+                Debug.Log("[EndPanel] Return clicked");
+                ReturnToStartMenu();
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[PlantManager] ReturnButton not found under endPanel.");
+        }
     }
 
     public void ContinueExploring()

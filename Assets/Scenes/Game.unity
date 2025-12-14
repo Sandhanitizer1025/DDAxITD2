@@ -5591,7 +5591,7 @@ GameObject:
   - component: {fileID: 1111693435}
   - component: {fileID: 1111693434}
   m_Layer: 5
-  m_Name: Return
+  m_Name: ReturnButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5660,19 +5660,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1111693435}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11500000, guid: f138e599bd1342d4fbad72af205dd512, type: 3}
-        m_TargetAssemblyTypeName: UnityEditor.MonoScript, UnityEditor.CoreModule
-        m_MethodName: set_name
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: PlantManager.ReturnToStartMenu()
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1111693435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9664,7 +9652,7 @@ GameObject:
   - component: {fileID: 2123539382}
   - component: {fileID: 2123539381}
   m_Layer: 5
-  m_Name: Continue Exploring
+  m_Name: ContinueButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9733,19 +9721,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2123539382}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11500000, guid: f138e599bd1342d4fbad72af205dd512, type: 3}
-        m_TargetAssemblyTypeName: UnityEditor.MonoScript, UnityEditor.CoreModule
-        m_MethodName: set_name
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: PlantManager.ContinueExploring()
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2123539382
 MonoBehaviour:
   m_ObjectHideFlags: 0
